@@ -1,5 +1,6 @@
 ﻿using Core.Entities.User;
 using Infrastructure.Data.Interfaces.User;
+using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +12,12 @@ namespace Infrastructure.Data.Repositories.User
 {
     public class MenuDao : IMenuDao
     {
+        private readonly DbManager _dbManager;
+
+        public MenuDao(DbManager dbManager)
+        {
+            _dbManager = dbManager;
+        }
         /// <summary>
         /// </summary>
         /// <returns>StorageType list.</returns>
@@ -33,7 +40,7 @@ namespace Infrastructure.Data.Repositories.User
             //String Building for For Criteria.
 
 
-            DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString());
+            DataSet ds = _dbManager.GetDataSet(sql.ToString());
             DataTable dtList = ds.Tables[0];
             IList<MenuList> list = new List<MenuList>();
             foreach (DataRow row in dtList.Rows)

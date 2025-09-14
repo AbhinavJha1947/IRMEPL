@@ -1,289 +1,380 @@
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Data
 {
     public class DbManager
     {
-       // private static readonly string dataProvider = ConfigurationManager.AppSettings.Get("DataProvider");
-       // private static readonly DbProviderFactory factory = DbProviderFactories.GetFactory(dataProvider);
-       // private static readonly string connectionString = ConfigurationManager.ConnectionStrings[dataProvider].ConnectionString;
+        private readonly string _connectionString;
+        private readonly string _dataProvider;
+        private readonly DbProviderFactory _factory;
+        private readonly ILogger<DbManager> _logger;
 
-        public static int Update(string sql)
+        public DbManager(IConfiguration configuration, ILogger<DbManager> logger = null)
         {
-            using (DbConnection connection = factory.CreateConnection())
+            _logger = logger;
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ??
+                                configuration.GetConnectionString("IRMEPLConnectionString");
+
+            if (string.IsNullOrEmpty(_connectionString))
             {
-                connection.ConnectionString = connectionString;
+                throw new ArgumentException("Connection string not found in configuration");
+            }
 
-                using (DbCommand command = factory.CreateCommand())
+            _dataProvider = "System.Data.SqlClient";
+            _factory = SqlClientFactory.Instance;
+        }
+
+        #region Update Methods
+        public int Update(string sql)
+        {
+            try
+            {
+                using (DbConnection connection = _factory.CreateConnection())
                 {
-                    command.Connection = connection;
-                    command.CommandText = sql;
+                    connection.ConnectionString = _connectionString;
 
-                    connection.Open();
-                    return command.ExecuteNonQuery();
+                    using (DbCommand command = _factory.CreateCommand())
+                    {
+                        command.Connection = connection;
+                        command.CommandText = sql;
+
+                        connection.Open();
+                        return command.ExecuteNonQuery();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error executing update: {Sql}", sql);
+                throw;
             }
         }
 
-        public static int Update(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
+        public int Update(string sql, SqlConnection objCon, SqlTransaction trn)
         {
-            SqlCommand command = new SqlCommand();
-            command.Connection = objCon;
-            command.CommandText = sql;
-            command.Transaction = trn;
-
-            //objCon.Open();
-            return command.ExecuteNonQuery();
-            //}
-            //
-        }
-        public static int Insert(string sql, bool getId)
-        {
-            using (DbConnection connection = factory.CreateConnection())
+            try
             {
-                connection.ConnectionString = connectionString;
-
-                using (DbCommand command = factory.CreateCommand())
+                using (SqlCommand command = new SqlCommand())
                 {
-                    command.Connection = connection;
+                    command.Connection = objCon;
                     command.CommandText = sql;
+                    command.Transaction = trn;
 
-                    connection.Open();
+                    return command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error executing update with transaction: {Sql}", sql);
+                throw;
+            }
+        }
+
+        public int Update(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
+        {
+            return Update(sql, objCon, trn);
+        }
+        #endregion
+
+        #region Insert Methods
+        public int Insert(string sql, bool getId)
+        {
+            try
+            {
+                using (DbConnection connection = _factory.CreateConnection())
+                {
+                    connection.ConnectionString = _connectionString;
+
+                    using (DbCommand command = _factory.CreateCommand())
+                    {
+                        command.Connection = connection;
+                        command.CommandText = sql;
+
+                        connection.Open();
+                        command.ExecuteNonQuery();
+
+                        int id = -1;
+
+                        if (getId)
+                        {
+                            string identitySelect = GetIdentitySelectQuery();
+                            command.CommandText = identitySelect;
+
+                            var result = command.ExecuteScalar();
+                            if (result != null && result != DBNull.Value)
+                            {
+                                id = Convert.ToInt32(result);
+                            }
+                        }
+                        return id;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error executing insert: {Sql}", sql);
+                throw;
+            }
+        }
+
+        public int Insert(string sql, bool getId, SqlConnection objCon, SqlTransaction trn)
+        {
+            try
+            {
+                using (SqlCommand command = new SqlCommand())
+                {
+                    command.Connection = objCon;
+                    command.CommandText = sql;
+                    command.Transaction = trn;
+
                     command.ExecuteNonQuery();
 
                     int id = -1;
 
-                    // Check if new identity is needed.
                     if (getId)
                     {
-                        // Execute db specific autonumber or identity retrieval code
-                        // SELECT SCOPE_IDENTITY() -- for SQL Server
-                        // SELECT @@IDENTITY -- for MS Access
-                        // SELECT MySequence.NEXTVAL FROM DUAL -- for Oracle
-                        string identitySelect;
-                        switch (dataProvider)
-                        {
-                            // Access
-                            case "System.Data.OleDb":
-                                identitySelect = "SELECT @@IDENTITY";
-                                break;
-                            // Sql Server
-                            case "System.Data.SqlClient":
-                                //identitySelect = "SELECT SCOPE_IDENTITY()";
-                                identitySelect = "SELECT @@IDENTITY";
-                                break;
-                            // Oracle
-                            case "System.Data.OracleClient":
-                                identitySelect = "SELECT MySequence.NEXTVAL FROM DUAL";
-                                break;
-                            default:
-                                identitySelect = "SELECT @@IDENTITY";
-                                break;
-                        }
+                        string identitySelect = GetIdentitySelectQuery();
                         command.CommandText = identitySelect;
-                        if (command.ExecuteScalar().ToString() != "")
+
+                        var result = command.ExecuteScalar();
+                        if (result != null && result != DBNull.Value)
                         {
-                            id = int.Parse(command.ExecuteScalar().ToString());
-                        }
-                        else
-                        {
-                            id = 0;
+                            id = Convert.ToInt32(result);
                         }
                     }
                     return id;
                 }
             }
-        }
-
-        public static int Insert(string sql, bool getId, ref SqlConnection objCon, ref SqlTransaction trn)
-        {
-            //using (DbConnection connection = factory.CreateConnection())
-            //{
-            //    connection.ConnectionString = connectionString;
-
-            //    using (DbCommand command = factory.CreateCommand())
-            //    {
-            SqlCommand command = new SqlCommand();
-            command.Connection = objCon;
-            command.CommandText = sql;
-            command.Transaction = trn;
-
-            command.ExecuteNonQuery();
-
-            int id = -1;
-
-            // Check if new identity is needed.
-            if (getId)
+            catch (Exception ex)
             {
-                // Execute db specific autonumber or identity retrieval code
-                // SELECT SCOPE_IDENTITY() -- for SQL Server
-                // SELECT @@IDENTITY -- for MS Access
-                // SELECT MySequence.NEXTVAL FROM DUAL -- for Oracle
-                string identitySelect;
-                switch (dataProvider)
-                {
-                    // Access
-                    case "System.Data.OleDb":
-                        identitySelect = "SELECT @@IDENTITY";
-                        break;
-                    // Sql Server
-                    case "System.Data.SqlClient":
-                        //identitySelect = "SELECT SCOPE_IDENTITY()";
-                        identitySelect = "SELECT @@IDENTITY";
-                        break;
-                    // Oracle
-                    case "System.Data.OracleClient":
-                        identitySelect = "SELECT MySequence.NEXTVAL FROM DUAL";
-                        break;
-                    default:
-                        identitySelect = "SELECT @@IDENTITY";
-                        break;
-                }
-                command.CommandText = identitySelect;
-                if (command.ExecuteScalar().ToString() != "")
-                {
-                    id = int.Parse(command.ExecuteScalar().ToString());
-                }
-                else
-                {
-                    id = -1;
-                }
+                _logger?.LogError(ex, "Error executing insert with transaction: {Sql}", sql);
+                throw;
             }
-            return id;
-            //    }
-            //}
         }
-        public static void Insert(string sql)
+
+        public int Insert(string sql, bool getId, ref SqlConnection objCon, ref SqlTransaction trn)
+        {
+            return Insert(sql, getId, objCon, trn);
+        }
+
+        public void Insert(string sql)
         {
             Insert(sql, false);
         }
 
-        public static void Insert(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
+        public void Insert(string sql, SqlConnection objCon, SqlTransaction trn)
         {
-            Insert(sql, false, ref objCon, ref trn);
+            Insert(sql, false, objCon, trn);
         }
 
-
-        public static DataSet GetDataSet(string spName)
+        public void Insert(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
         {
-            using (DbConnection connection = factory.CreateConnection())
+            Insert(sql, false, objCon, trn);
+        }
+        #endregion
+
+        #region DataSet Methods
+        public DataSet GetDataSet(string sql)
+        {
+            try
             {
-                connection.ConnectionString = connectionString;
-
-                using (DbCommand command = factory.CreateCommand())
+                using (DbConnection connection = _factory.CreateConnection())
                 {
-                    command.Connection = connection;
-                    command.CommandType = CommandType.Text;
-                    //command.CommandType = CommandType.StoredProcedure;
-                    command.CommandText = spName;
+                    connection.ConnectionString = _connectionString;
+                    connection.Open();
 
-                    using (DbDataAdapter adapter = factory.CreateDataAdapter())
+                    using (DbCommand command = _factory.CreateCommand())
                     {
-                        adapter.SelectCommand = command;
+                        command.Connection = connection;
+                        command.CommandType = CommandType.Text;
+                        command.CommandText = sql;
 
+                        using (DbDataAdapter adapter = _factory.CreateDataAdapter())
+                        {
+                            adapter.SelectCommand = command;
+
+                            DataSet ds = new DataSet();
+                            adapter.Fill(ds);
+
+                            return ds;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error getting dataset: {Sql}", sql);
+                throw;
+            }
+        }
+
+        public DataSet GetDataSet_SP(string spName, params SqlParameter[] parameters)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand(spName, connection))
+                using (var adapter = new SqlDataAdapter(command))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    if (parameters != null)
+                        command.Parameters.AddRange(parameters);
+
+                    DataSet ds = new DataSet();
+                    connection.Open();
+                    adapter.Fill(ds);
+                    return ds;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error executing stored procedure: {SpName}", spName);
+                throw;
+            }
+        }
+
+        public DataSet GetDataSet(string sql, SqlConnection objCon, SqlTransaction trn)
+        {
+            try
+            {
+                using (SqlCommand command = new SqlCommand())
+                {
+                    command.Connection = objCon;
+                    command.CommandType = CommandType.Text;
+                    command.CommandText = sql;
+                    command.Transaction = trn;
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+                    {
                         DataSet ds = new DataSet();
                         adapter.Fill(ds);
-
                         return ds;
                     }
                 }
             }
-        }
-
-        public static DataSet GetDataSet(string spName, ref SqlConnection objCon, ref SqlTransaction trn)
-        {
-            SqlCommand command = new SqlCommand();
-            command.Connection = objCon;
-            command.CommandType = CommandType.Text;
-            command.CommandText = spName;
-            command.Transaction = trn;
-
-            using (DbDataAdapter adapter = factory.CreateDataAdapter())
+            catch (Exception ex)
             {
-                adapter.SelectCommand = command;
-
-                DataSet ds = new DataSet();
-                adapter.Fill(ds);
-                return ds;
+                _logger?.LogError(ex, "Error getting dataset with transaction: {Sql}", sql);
+                throw;
             }
         }
 
-
-        
-        public static DataTable GetDataTable(string spName)
+        public DataSet GetDataSet(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
         {
-            return GetDataSet(spName).Tables[0];
+            return GetDataSet(sql, objCon, trn);
+        }
+        #endregion
+
+        #region DataTable Methods
+        public DataTable GetDataTable(string sql)
+        {
+            DataSet ds = GetDataSet(sql);
+            return ds.Tables.Count > 0 ? ds.Tables[0] : new DataTable();
         }
 
-        public static DataTable GetDataTable(string spName, ref SqlConnection objCon, ref SqlTransaction trn)
+        public DataTable GetDataTable(string sql, SqlConnection objCon, SqlTransaction trn)
         {
-            return GetDataSet(spName, ref objCon, ref trn).Tables[0];
+            DataSet ds = GetDataSet(sql, objCon, trn);
+            return ds.Tables.Count > 0 ? ds.Tables[0] : new DataTable();
         }
 
-
-        public static DataRow GetDataRow(string sql)
+        public DataTable GetDataTable(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
         {
-            DataRow row = null;
+            return GetDataTable(sql, objCon, trn);
+        }
+        #endregion
 
+        #region DataRow Methods
+        public DataRow GetDataRow(string sql)
+        {
             DataTable dt = GetDataTable(sql);
-            if (dt.Rows.Count > 0)
-            {
-                row = dt.Rows[0];
-            }
-
-            return row;
+            return dt.Rows.Count > 0 ? dt.Rows[0] : null;
         }
 
-
-        public static DataRow GetDataRow(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
+        // FIXED: This was calling GetDataRow recursively - now calls GetDataTable
+        public DataRow GetDataRow(string sql, SqlConnection objCon, SqlTransaction trn)
         {
-            DataRow row = null;
-
-            DataTable dt = GetDataTable(sql, ref objCon, ref trn);
-            if (dt.Rows.Count > 0)
-            {
-                row = dt.Rows[0];
-            }
-
-            return row;
+            DataTable dt = GetDataTable(sql, objCon, trn);
+            return dt.Rows.Count > 0 ? dt.Rows[0] : null;
         }
 
-        public static object GetScalar(string sql)
+        public DataRow GetDataRow(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
         {
-            using (DbConnection connection = factory.CreateConnection())
-            {
-                connection.ConnectionString = connectionString;
+            return GetDataRow(sql, objCon, trn);
+        }
+        #endregion
 
-                using (DbCommand command = factory.CreateCommand())
+        #region Scalar Methods
+        public object GetScalar(string sql)
+        {
+            try
+            {
+                using (DbConnection connection = _factory.CreateConnection())
                 {
-                    command.Connection = connection;
-                    command.CommandText = sql;
+                    connection.ConnectionString = _connectionString;
 
-                    connection.Open();
+                    using (DbCommand command = _factory.CreateCommand())
+                    {
+                        command.Connection = connection;
+                        command.CommandText = sql;
+
+                        connection.Open();
+                        return command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error getting scalar: {Sql}", sql);
+                throw;
+            }
+        }
+
+        public object GetScalar(string sql, SqlConnection objCon, SqlTransaction trn)
+        {
+            try
+            {
+                using (SqlCommand command = new SqlCommand())
+                {
+                    command.Connection = objCon;
+                    command.CommandText = sql;
+                    command.Transaction = trn;
+
                     return command.ExecuteScalar();
                 }
             }
-        }
-
-        public static object GetScalar(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
-        {
-            using (DbCommand command = factory.CreateCommand())
+            catch (Exception ex)
             {
-                command.Connection = objCon;
-                command.CommandText = sql;
-
-                return command.ExecuteScalar();
+                _logger?.LogError(ex, "Error getting scalar with transaction: {Sql}", sql);
+                throw;
             }
         }
 
-        
+        public object GetScalar(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
+        {
+            return GetScalar(sql, objCon, trn);
+        }
+        #endregion
+
+        #region Helper Methods
+        private string GetIdentitySelectQuery()
+        {
+            return _dataProvider switch
+            {
+                "System.Data.OleDb" => "SELECT @@IDENTITY",
+                "System.Data.SqlClient" => "SELECT SCOPE_IDENTITY()",
+                "System.Data.OracleClient" => "SELECT MySequence.NEXTVAL FROM DUAL",
+                _ => "SELECT SCOPE_IDENTITY()"
+            };
+        }
+
         public static string Escape(string s)
         {
-            if (String.IsNullOrEmpty(s))
+            if (string.IsNullOrEmpty(s))
                 return "NULL";
             else
                 return "'" + s.Trim().Replace("'", "''") + "'";
@@ -291,15 +382,32 @@ namespace Infrastructure.Data
 
         public static string Escape(string s, int maxLength)
         {
-            if (String.IsNullOrEmpty(s))
+            if (string.IsNullOrEmpty(s))
                 return "NULL";
             else
             {
                 s = s.Trim();
-                if (s.Length > maxLength) s = s.Substring(0, maxLength - 1);
-                return "'" + s.Trim().Replace("'", "''") + "'";
+                if (s.Length > maxLength) s = s.Substring(0, maxLength);
+                return "'" + s.Replace("'", "''") + "'";
             }
         }
+        #endregion
 
+        #region Delete Method (if needed)
+        public int Delete(string sql)
+        {
+            return Update(sql); // Delete is essentially an update operation
+        }
+
+        public int Delete(string sql, SqlConnection objCon, SqlTransaction trn)
+        {
+            return Update(sql, objCon, trn);
+        }
+
+        public int Delete(string sql, ref SqlConnection objCon, ref SqlTransaction trn)
+        {
+            return Update(sql, objCon, trn);
+        }
+        #endregion
     }
 }

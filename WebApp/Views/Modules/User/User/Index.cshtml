@@ -1,0 +1,63 @@
+﻿@model IEnumerable<WebApp.ViewModels.UserViewModel>
+@using WebApp.ViewModels
+
+@{
+    ViewData["Title"] = "User Master";
+}
+
+<h2>User Master</h2>
+
+<!-- Search -->
+<form asp-action="Index" method="get" class="form-inline mb-3">
+    <input type="text" name="userName" value="@Context.Request.Query["userName"]" placeholder="User Name" class="form-control mr-2" />
+    <select name="roleId" class="form-control mr-2">
+        <option value="">--Role--</option>
+        @foreach (var role in ViewBag.Roles as List<RoleViewModel>)
+        {
+            <option value="@role.RoleId">@role.RoleName</option>
+        }
+    </select>
+    <select name="status" class="form-control mr-2">
+        <option value="">--Status--</option>
+        <option value="1">Active</option>
+        <option value="0">Inactive</option>
+    </select>
+    <button type="submit" class="btn btn-info">Search</button>
+</form>
+
+<!-- User List -->
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Action</th>
+            <th>User Name</th>
+            <th>Role</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@user.UserId" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>
+                    <a asp-action="Delete" asp-route-id="@user.UserId" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?');"><i class="fa fa-trash"></i></a>
+                </td>
+                <td>@user.UserName</td>
+                <td>@user.RoleName</td>
+                <td>@(user.Status == 1 ? "Active" : "Inactive")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<div>
+    Page @ViewBag.PageIndex of @ViewBag.TotalPages
+    <a asp-action="Index" asp-route-pageIndex="1">First</a> |
+    <a asp-action="Index" asp-route-pageIndex="@(ViewBag.PageIndex - 1)">Prev</a> |
+    <a asp-action="Index" asp-route-pageIndex="@(ViewBag.PageIndex + 1)">Next</a> |
+    <a asp-action="Index" asp-route-pageIndex="@ViewBag.TotalPages">Last</a>
+</div>
+
+<a asp-action="Create" class="btn btn-success">Add New User</a>

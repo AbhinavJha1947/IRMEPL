@@ -10,20 +10,24 @@ using Application.Interfaces.User;
 using Application.Services.User;
 using Infrastructure.Data.Interfaces.User;
 using Infrastructure.Data.Repositories.User;
+using Infrastructure.Services;
+using Application.Services.Core;
+using Application.ServiceInterfaces.Core;
+using Application.RepositoryInterfaces.Core;
+using Infrastructure.Data.Repositories.Core;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Register Repositories
-builder.Services.AddScoped<IMenuDao, MenuDao>();
-
-// Register Services
 builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<Application.Interfaces.User.IUSRUserMasterService, Application.Services.User.USRUserMasterService>();
+builder.Services.AddScoped<Application.Interfaces.User.IUSRRoleMasterService, Application.Services.User.USRRoleMasterService>();
+builder.Services.AddScoped<Application.Interfaces.User.ICORPrivilegeMasterService, Application.Services.User.CORPrivilegeMasterService>();
 
-// Add services to the container.
+
+builder.Services.AddScoped<DbHelper>();
+builder.Services.AddScoped<FileUploadService>();
+
 builder.Services.AddControllersWithViews();
-
-// Add logging
 builder.Services.AddLogging(logging =>
 {
     logging.AddConsole();
@@ -32,25 +36,44 @@ builder.Services.AddLogging(logging =>
 
 // Register Infrastructure services
 builder.Services.AddScoped<DbManager>();
-builder.Services.AddScoped<ClsGeneral>();
+builder.Services.AddScoped<GeneralHelper>();
 builder.Services.AddScoped<ClsTransaction>();
+builder.Services.AddScoped<ICORCompanyMasterService, CORCompanyMasterService>();
+builder.Services.AddScoped<ICORCenterMasterService, CORCenterMasterService>();
+builder.Services.AddScoped<IControlDetailMasterService, ControlDetailMasterService>();
+
+builder.Services.AddScoped<ICORFunctionalityHDRMSTService, CORFunctionalityHDRMSTService>();
+builder.Services.AddScoped<ICORPrivilegeMasterService, CORPrivilegeMasterService>();
+builder.Services.AddScoped<ICORScreenMasterService, CORScreenMasterService>();
+builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<IUSRRoleMasterService, USRRoleMasterService>();
+builder.Services.AddScoped<IUSRUserRoleMasterService, USRUserRoleMasterService>();
+builder.Services.AddScoped<IUSRUserMasterService, USRUserMasterService>();
+builder.Services.AddScoped<IUSRRoleHDRMSTService, USRRoleHDRMSTService>();
+
+// Register DAO classes
+builder.Services.AddScoped<IUSRUserRoleMasterDao, USRUserRoleMasterDao>();
+builder.Services.AddScoped<IUSRUserMasterDao, USRUserMasterDao>();
+builder.Services.AddScoped<IUSRRoleMasterDao, USRRoleMasterDao>();
+builder.Services.AddScoped<ICORPrivilegeMasterDao, CORPrivilegeMasterDao>();
+builder.Services.AddScoped<IUSRRoleHDRMSTDao, USRRoleHDRMSTDao>();
+builder.Services.AddScoped<ICORScreenMasterDao, CORScreenMasterDao>();
+builder.Services.AddScoped<ICORFunctionalityHDRMSTDao, CORFunctionalityHDRMSTDao>();
+builder.Services.AddScoped<IMenuDao, MenuDao>();
+
+builder.Services.AddScoped<IControlDetailMasterDao, ControlDetailMasterDao>();
+builder.Services.AddScoped<ICORCenterMasterDao, CORCenterMasterDao>();
+builder.Services.AddScoped<ICORCompanyMasterDao, CORCompanyMasterDao>();
 
 
-// Add session support
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
-// Add memory cache
 builder.Services.AddMemoryCache();
-
-// Add HTTP context accessor
 builder.Services.AddHttpContextAccessor();
-
-// Configure CORS if needed
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -62,8 +85,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -74,6 +95,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseStaticFiles();
 
 app.UseSession();
 
@@ -83,9 +105,8 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Login}/{action=Index}/{id?}");
 
-// Add custom middleware for logging requests
 app.Use(async (context, next) =>
 {
     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
@@ -93,7 +114,6 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// Add custom middleware for handling exceptions
 app.Use(async (context, next) =>
 {
     try

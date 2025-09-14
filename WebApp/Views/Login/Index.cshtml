@@ -1,0 +1,205 @@
+﻿@model WebApp.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "IREMPL - PNGNet ::: Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>@ViewData["Title"]</title>
+    <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport" />
+    <meta content="yes" name="mobile-web-app-capable" />
+
+    <!-- Favicon -->
+    <link href="~/images/favicon.png" rel="shortcut icon" />
+    <link href="~/images/favicon.ico" rel="icon" type="image/x-icon" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,700" rel="stylesheet" />
+
+    <!-- CSS Files -->
+    <link href="~/App_Themes/WinXP_Blue/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/App_Themes/WinXP_Blue/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/App_Themes/WinXP_Blue/css/style.css" rel="stylesheet" />
+    <link href="~/App_Themes/WinXP_Blue/style.css" rel="stylesheet" />
+
+    <!-- JS Files -->
+    <script src="~/scripts/js/jquery.min.js"></script>
+    <script src="~/scripts/js/bootstrap.min.js"></script>
+    <script src="~/scripts/js/modernizr.js"></script>
+    <script src="~/scripts/Date.js"></script>
+    <script src="~/Scripts/General.js"></script>
+    <script src="~/Scripts/Alert.js"></script>
+
+    <style>
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loader {
+            margin-bottom: 20px;
+        }
+
+        .txt {
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <span class="loader">
+            <img src="~/App_Themes/WinXP_Blue/Images/camera-loader.gif" alt="loading..." />
+        </span>
+        <span class="txt">Processing, please wait...</span>
+    </div>
+
+    <div class="login-regi-div clearfix">
+        <div class="logo-box">
+            <span class="logo-txt">
+                <img src="~/App_Themes/WinXP_Blue/Images/irempl.png" class="img-responsive" alt="logo" />
+            </span>
+            <span class="sub-logo-txt">
+                <img src="~/App_Themes/WinXP_Blue/Images/PNGNet-Logo.gif" class="img-responsive" alt="logo" />
+            </span>
+        </div>
+
+        <div class="login-regi-box clearfix">
+            <fieldset>
+                <legend></legend>
+                <div class="login-regi-form clearfix">
+                    <h3>Sign in to start your session</h3>
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["Error"]</div>
+                    }
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["Success"]</div>
+                    }
+
+                    <!-- ✅ Corrected form -->
+                    <form asp-controller="Login" asp-action="Index" method="post" id="loginForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group">
+                            <input type="text" name="LoginID" class="form-control" placeholder="Enter your user id" />
+                            <span asp-validation-for="LoginID" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" name="Password" class="form-control" placeholder="Enter your Password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-sign-sbtn">Log In</button>
+                        </div>
+
+                        <div class="clearfix button-group text-center">
+                            <p>
+                                <a href="#" data-toggle="modal" data-target="#Forget-Modal" style="color: #00a651 !important;">
+                                    Forgot Password?
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <p class="log-reg-footer-txt">
+        Copyright &copy;
+        <script>document.write(new Date().getFullYear());</script>
+        IRMEL. PNGNet | Powered by <a href="https://www.vbsoftindia.com" target="_blank">VBSoft (India) Limited.</a>
+    </p>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="Forget-Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <h4 class="modal-title">Forgot Password?</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="login-container">
+                        <div class="login-form clearfix">
+                            <div class="form-group clearfix">
+                                <input type="text" id="txtUsernameForgot" class="form-control input-95" placeholder="Enter User Name *" />
+                            </div>
+                            <div class="clearfix button-group text-center">
+                                <button type="button" class="btn btn-primary" onclick="submitForgotPassword()">
+                                    <i class="fa fa-envelope"></i> Submit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+
+    <script>
+        function showLoading() { document.getElementById('loadingOverlay').style.display = 'flex'; }
+        function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+
+        function submitForgotPassword() {
+            var username = document.getElementById('txtUsernameForgot').value.trim();
+            if (username === '') { alert('Enter User Name'); return false; }
+
+            showLoading();
+            $.ajax({
+                url: '@Url.Action("ForgotPassword", "Login")',
+                type: 'POST',
+                data: {
+                    username: username,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    hideLoading();
+                    if (response.success) {
+                        alert(response.message);
+                        $('#Forget-Modal').modal('hide');
+                        $('#txtUsernameForgot').val('');
+                    } else { alert(response.message); }
+                },
+                error: function () {
+                    hideLoading();
+                    alert('An error occurred while processing your request.');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            hideLoading();
+            $('#LoginID').focus();
+            $('#loginForm').on('submit', function () { showLoading(); });
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 ﻿using Core.Entities.User;
 using Infrastructure.Data.Interfaces.User;
-using Microsoft.Data.SqlClient;
+using Infrastructure.Data;
+using System.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,6 +13,12 @@ namespace Infrastructure.Data.Repositories.User
 {
     public class USRUserRoleMasterDao : IUSRUserRoleMasterDao
     {
+        private readonly DbManager _dbManager;
+
+        public USRUserRoleMasterDao(DbManager dbManager)
+        {
+            _dbManager = dbManager;
+        }
             /// <summary>
             /// </summary>
             /// <returns>StorageType list.</returns>
@@ -31,7 +38,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append("EXEC User_USRUserRoleMaster_SelectAll ");
                 sql.Append("'");
                 sql.Append(criteria + "'");
-                DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString());
+                DataSet ds = _dbManager.GetDataSet(sql.ToString());
                 DataTable dtList = ds.Tables[0];
                 IList<USRUserRoleMasterList> list = new List<USRUserRoleMasterList>();
                 foreach (DataRow row in dtList.Rows)
@@ -54,7 +61,7 @@ namespace Infrastructure.Data.Repositories.User
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("EXEC User_USRUserRoleMaster_Select " + USRUserRoleMasterid);
-                DataRow row = DbManager.GetDataRow(sql.ToString());
+                DataRow row = _dbManager.GetDataRow(sql.ToString());
                 #region"Variables Declaration"
                 int USRROL_ID = Convert.ToInt32(row["USRROL_ID"]);
                 int USRROL_UserID = Convert.ToInt32(row["USRROL_UserID"]);
@@ -80,7 +87,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append(USRUserRoleMaster.USRROL_RoleID + ",");
                 sql.Append(USRUserRoleMaster.USRROL_CreatedByUserID + ",");
                 sql.Append(USRUserRoleMaster.USRROL_AUDITMID);
-            DbManager.Insert(sql.ToString(), ref objCon, ref trn);
+            _dbManager.InsertWithTransaction(sql.ToString(), ref objCon, ref trn);
 
             }
 
@@ -93,7 +100,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append(USRUserRoleMaster.USRROL_RoleID + ",");
                 sql.Append(USRUserRoleMaster.USRROL_UpdatedByUserID + ",");
                 sql.Append(USRUserRoleMaster.USRROL_AUDITMID);
-               DbManager.Update(sql.ToString(), ref objCon, ref trn);
+               _dbManager.UpdateWithTransaction(sql.ToString(), ref objCon, ref trn);
 
             }
 
@@ -106,7 +113,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append("EXEC User_USRUserRoleMaster_Delete ");
                 sql.Append(USRUserRoleMasterID.ToString());
 
-            DbManager.Update(sql.ToString(), ref objCon, ref trn);
+            _dbManager.UpdateWithTransaction(sql.ToString(), ref objCon, ref trn);
             }
         
     }

@@ -1,0 +1,89 @@
+﻿@model IEnumerable<WebApp.ViewModels.RoleViewModel>
+@{
+    ViewData["Title"] = "Role Master";
+}
+
+<section class="content-header clearfix">
+    <h1>@ViewData["Title"]</h1>
+    <ol class="breadcrumb">
+        <li><a asp-controller="Home" asp-action="Index"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li class="active">Role Master</li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="main-tabs-container clearfix">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#listTab">List</a></li>
+            <li><a data-toggle="tab" href="#roleTab">Role</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- LIST TAB -->
+            <div id="listTab" class="tab-pane fade in active">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Search Criteria</h3>
+                    </div>
+                    <div class="box-body">
+                        @using (Html.BeginForm("Index", "Role", FormMethod.Get))
+                        {
+                            <div class="form-group row">
+                                <div class="col-md-4">
+                                    <label>Role Name</label>
+                                    <input type="text" name="search" class="form-control" placeholder="Enter Role Name" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Status</label>
+                                    <select name="status" class="form-control">
+                                        <option value="">-- All --</option>
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-info" style="margin-top:24px;">Search</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Role List</h3>
+                    </div>
+                    <div class="box-body">
+                        <table class="table table-bordered table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Role Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var role in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-action="Edit" asp-route-id="@role.RoleId" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i></a>
+                                            <a asp-action="Delete" asp-route-id="@role.RoleId" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');"><i class="fa fa-trash-o"></i></a>
+                                        </td>
+                                        <td>@role.RoleName</td>
+                                        <td>@(role.Status == 1 ? "Active" : "Inactive")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROLE TAB (CREATE/EDIT) -->
+            <div id="roleTab" class="tab-pane fade">
+                @Html.Partial("_RoleForm", new WebApp.ViewModels.RoleViewModel())
+            </div>
+        </div>
+    </div>
+</section>

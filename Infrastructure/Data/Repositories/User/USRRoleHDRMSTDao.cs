@@ -1,5 +1,6 @@
 ﻿using Core.Entities.User;
 using Infrastructure.Data.Interfaces.User;
+using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +12,12 @@ namespace Infrastructure.Data.Repositories.User
 {
     public class USRRoleHDRMSTDao : IUSRRoleHDRMSTDao
     {
+        private readonly DbManager _dbManager;
+
+        public USRRoleHDRMSTDao(DbManager dbManager)
+        {
+            _dbManager = dbManager;
+        }
 
 
             /// <summary>
@@ -67,7 +74,7 @@ namespace Infrastructure.Data.Repositories.User
                 //String Building for For Count.
                 sql.Append(criteria + "'");
 
-                DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString());
+                DataSet ds = _dbManager.GetDataSet(sql.ToString());
                 DataTable dtList = ds.Tables[0];
                 DataTable dtRowCount = ds.Tables[1];
                 int rolecount = int.Parse(dtRowCount.Rows[0][0].ToString());
@@ -102,7 +109,7 @@ namespace Infrastructure.Data.Repositories.User
                 StringBuilder sql = new StringBuilder();
                 sql.Append("USP_USRRoleHDRMST_Select " + USRRoleHDRMSTId);
 
-                DataRow row = DbManager.GetDataRow(sql.ToString());
+                DataRow row = _dbManager.GetDataRow(sql.ToString());
 
                 /// procedure level local variables declaration.
                 //#region "variables declaration"            
@@ -138,7 +145,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append(usrrolehdrmst.ROLH_Status + ",");
                 sql.Append(usrrolehdrmst.ROLH_UpdatedByUserID);
 
-                DataRow row = DbManager.GetDataRow(sql.ToString());
+                DataRow row = _dbManager.GetDataRow(sql.ToString());
                 #region "Variables Declaration"
                 int _RetVal = int.Parse(row["RetVal"].ToString());
                 usrrolehdrmst.ROLH_ID = _RetVal;
@@ -165,7 +172,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append(usrrolehdrmst.ROLH_RowVersion);
 
 
-                DataRow row = DbManager.GetDataRow(sql.ToString());
+                DataRow row = _dbManager.GetDataRow(sql.ToString());
                 //#region "Variables Declaration"
                 int _RetVal = int.Parse(row["RetVal"].ToString());
                 string _RetStr = row["RetStr"].ToString();
@@ -186,7 +193,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append(usrrolehdrmst.ROLH_ID);
                 //return Db.Update(sql.ToString());
 
-                DataRow row = DbManager.GetDataRow(sql.ToString());
+                DataRow row = _dbManager.GetDataRow(sql.ToString());
                 int _RetVal = int.Parse(row["RetVal"].ToString());
                 string _RetStr = row["RetStr"].ToString();
                 return new USRRoleHDRMSTMsg(_RetVal, _RetStr);

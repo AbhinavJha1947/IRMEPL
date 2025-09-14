@@ -1,6 +1,7 @@
 ﻿using Core.Entities.User;
 using Infrastructure.Data.Interfaces.User;
-using Microsoft.Data.SqlClient;
+using Infrastructure.Data;
+using System.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,6 +13,12 @@ namespace Infrastructure.Data.Repositories.User
 {
     public class CORPrivilegeMasterDao : ICORPrivilegeMasterDao
     {
+        private readonly DbManager _dbManager;
+
+        public CORPrivilegeMasterDao(DbManager dbManager)
+        {
+            _dbManager = dbManager;
+        }
         /// <summary>
         /// </summary>
         /// <returns>StorageType list.</returns>
@@ -29,7 +36,7 @@ namespace Infrastructure.Data.Repositories.User
             //String Building for Order by Column.
             sql.Append("'");
             sql.Append(criteria + "'");
-            DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString());
+            DataSet ds = _dbManager.GetDataSet(sql.ToString());
             DataTable dtList = ds.Tables[0];
             IList<CORPrivilegeMasterList> list = new List<CORPrivilegeMasterList>();
             foreach (DataRow row in dtList.Rows)
@@ -50,7 +57,7 @@ namespace Infrastructure.Data.Repositories.User
             //String Building for Order by Column.
             sql.Append("'");
             sql.Append(criteria + "'");
-            DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString(), ref cn, ref trn);
+            DataSet ds = _dbManager.GetDataSetWithTransaction(sql.ToString(), ref cn, ref trn);
             DataTable dtList = ds.Tables[0];
             IList<CORPrivilegeMasterList> list = new List<CORPrivilegeMasterList>();
             foreach (DataRow row in dtList.Rows)
@@ -69,7 +76,7 @@ namespace Infrastructure.Data.Repositories.User
         {
             StringBuilder sql = new StringBuilder();
             sql.Append("EXEC User_USRPrivilegeMaster_Select " + CORPrivilegeMasterid);
-            DataRow row = DbManager.GetDataRow(sql.ToString());
+            DataRow row = _dbManager.GetDataRow(sql.ToString());
             #region"Variables Declaration"
             int PRVL_ID = Convert.ToInt32(row["PRVL_ID"]);
             int PRVL_ROLE_ID = Convert.ToInt32(row["PRVL_ROLE_ID"]);
@@ -93,7 +100,7 @@ namespace Infrastructure.Data.Repositories.User
             sql.Append(CORPrivilegeMaster.PRVL_ScreenID + ",");
             sql.Append(CORPrivilegeMaster.PRVL_FunctionID + ",");
             sql.Append(CORPrivilegeMaster.PRVL_UpdatedByUserID);
-            DbManager.Insert(sql.ToString(), ref objCon, ref trn);
+            _dbManager.InsertWithTransaction(sql.ToString(), ref objCon, ref trn);
         }
 
         //public void UpdateUSRPrivilegeMaster(USRPrivilegeMaster USRPrivilegeMaster, ref SqlConnection objCon, ref SqlTransaction trn)
@@ -109,7 +116,7 @@ namespace Infrastructure.Data.Repositories.User
         //    sql.Append(USRPrivilegeMaster.PRVMST_UpdatedByUserID + ",");
         //    sql.Append(USRPrivilegeMaster.PRVMST_LastUpdateDate + "',");
         //    sql.Append(USRPrivilegeMaster.PRVMST_AUDITMID + ",");
-        //    Db.Insert(sql.ToString(), ref cn, ref trn);
+        //    _dbManager.Insert(sql.ToString(), ref cn, ref trn);
         //}
 
         public void DeleteCORPrivilegeMaster(CORPrivilegeMaster CORPrivilegeMaster, ref SqlConnection objCon, ref SqlTransaction trn)
@@ -122,7 +129,7 @@ namespace Infrastructure.Data.Repositories.User
             sql.Append(",");
             sql.Append(CORPrivilegeMaster.PRVL_FunctionID);
 
-            DbManager.Update(sql.ToString(), ref objCon, ref trn);
+            _dbManager.UpdateWithTransaction(sql.ToString(), ref objCon, ref trn);
         }
         /// <summary>
         /// </summary>
@@ -140,7 +147,7 @@ namespace Infrastructure.Data.Repositories.User
             sql.Append("EXEC usp_USRPrivilegeMaster_GetPriviledge ");
             sql.Append(userid + ",'");
             sql.Append(FormName + "'");
-            DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString());
+            DataSet ds = _dbManager.GetDataSet(sql.ToString());
             DataTable dtList = ds.Tables[0];
             IList<USRFunctionalityRights> list = new List<USRFunctionalityRights>();
             foreach (DataRow row in dtList.Rows)

@@ -1,5 +1,5 @@
 using Core.Entities.User;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 
 namespace Application.Interfaces.User
 {

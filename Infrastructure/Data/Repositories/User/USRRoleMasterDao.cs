@@ -1,6 +1,7 @@
 ﻿using Core.Entities.User;
 using Infrastructure.Data.Interfaces.User;
-using Microsoft.Data.SqlClient;
+using Infrastructure.Data;
+using System.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,6 +13,12 @@ namespace Infrastructure.Data.Repositories.User
 {
     public class USRRoleMasterDao : IUSRRoleMasterDao
     {
+        private readonly DbManager _dbManager;
+
+        public USRRoleMasterDao(DbManager dbManager)
+        {
+            _dbManager = dbManager;
+        }
             /// <summary>
             /// </summary>
             /// <returns>StorageType list.</returns>
@@ -51,7 +58,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append(pageIndex + ",");
                 sql.Append(pageSize + ",'");
                 sql.Append(criteria + "'");
-                DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString());
+                DataSet ds = _dbManager.GetDataSet(sql.ToString());
                 DataTable dtList = ds.Tables[0];
                 DataTable dtRowCount = ds.Tables[1];
                 int Count = int.Parse(dtRowCount.Rows[0][0].ToString());
@@ -72,7 +79,7 @@ namespace Infrastructure.Data.Repositories.User
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("EXEC User_USRRoleMaster_Select " + USRRoleMasterid);
-                DataRow row = DbManager.GetDataRow(sql.ToString());
+                DataRow row = _dbManager.GetDataRow(sql.ToString());
                 #region"Variables Declaration"
                 int ROLMST_RoleID = Convert.ToInt32(row["ROLMST_RoleID"]);
                 string ROLMST_RoleName = Convert.ToString(row["ROLMST_RoleName"]);
@@ -99,7 +106,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append(USRRoleMaster.ROLMST_RoleDescription + "',");
                 sql.Append(USRRoleMaster.ROLMST_RowStatus + ",");
                 sql.Append(USRRoleMaster.ROLMST_CreatedByUserID);
-                DataRow row = DbManager.GetDataRow(sql.ToString(), ref objCon, ref trn);
+                DataRow row = _dbManager.GetDataRowWithTransaction(sql.ToString(), ref objCon, ref trn);
                 #region"Variables Declaration"
 
                 int _RetVal = Convert.ToInt32(row["RetVal"]);
@@ -119,7 +126,7 @@ namespace Infrastructure.Data.Repositories.User
                 sql.Append(USRRoleMaster.ROLMST_RowStatus + ",");
                 sql.Append(USRRoleMaster.ROLMST_UpdatedByUserID + ",");
                 sql.Append(USRRoleMaster.ROLMST_AUDITMID);
-                DataRow row = DbManager.GetDataRow(sql.ToString(), ref objCon, ref trn);
+                DataRow row = _dbManager.GetDataRowWithTransaction(sql.ToString(), ref objCon, ref trn);
 
                 #region"Variables Declaration"
 
@@ -138,7 +145,7 @@ namespace Infrastructure.Data.Repositories.User
                 StringBuilder sql = new StringBuilder();
                 sql.Append("EXEC User_USRRoleMaster_Delete ");
                 sql.Append(USRRoleMaster.ROLMST_RoleID);
-                return DbManager.Update(sql.ToString(), ref objCon, ref trn);
+                return _dbManager.UpdateWithTransaction(sql.ToString(), ref objCon, ref trn);
 
             }
         }

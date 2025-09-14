@@ -1,5 +1,6 @@
 ﻿using Core.Entities.User;
 using Infrastructure.Data.Interfaces.User;
+using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +12,12 @@ namespace Infrastructure.Data.Repositories.User
 {
     public class CORFunctionalityHDRMSTDao : ICORFunctionalityHDRMSTDao
     {
+        private readonly DbManager _dbManager;
+
+        public CORFunctionalityHDRMSTDao(DbManager dbManager)
+        {
+            _dbManager = dbManager;
+        }
         public IList<CORFunctionalityHDRMSTList> GetCORFunctionalityHDRMSTs()
         {
 
@@ -31,7 +38,7 @@ namespace Infrastructure.Data.Repositories.User
             //String Building for Order by Column.
             sql.Append("'" + criteria + "'");
 
-            DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString());
+            DataSet ds = _dbManager.GetDataSet(sql.ToString());
             DataTable dtList = ds.Tables[0];
 
             IList<CORFunctionalityHDRMSTList> list = new List<CORFunctionalityHDRMSTList>();

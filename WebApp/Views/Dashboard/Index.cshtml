@@ -1,0 +1,323 @@
+﻿@model WebApp.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard - Centerwise Status";
+    Layout = "_Layout";
+    ViewBag.MenuItems = Model.MenuItems;
+    ViewBag.CurrentDate = Model.CurrentDate;
+    ViewBag.LockingDate = Model.LockingDate;
+    ViewBag.PageName = "Centerwise Status Report";
+}
+
+<div class="dashboard-container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="welcome-section">
+                <h2>Welcome, @Model.UserName</h2>
+                <p class="text-muted">@Model.Designation - @Model.CenterName</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <i class="fa fa-dashboard"></i> Dashboard
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <!-- Quick Stats Cards -->
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card bg-primary">
+                                <div class="stat-content">
+                                    <div class="stat-icon">
+                                        <i class="fa fa-users"></i>
+                                    </div>
+                                    <div class="stat-text">
+                                        <h4>Users</h4>
+                                        <p class="stat-number" id="userCount">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card bg-success">
+                                <div class="stat-content">
+                                    <div class="stat-icon">
+                                        <i class="fa fa-check-circle"></i>
+                                    </div>
+                                    <div class="stat-text">
+                                        <h4>Active</h4>
+                                        <p class="stat-number" id="activeCount">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card bg-warning">
+                                <div class="stat-content">
+                                    <div class="stat-icon">
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="stat-text">
+                                        <h4>Pending</h4>
+                                        <p class="stat-number" id="pendingCount">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card bg-info">
+                                <div class="stat-content">
+                                    <div class="stat-icon">
+                                        <i class="fa fa-bar-chart"></i>
+                                    </div>
+                                    <div class="stat-text">
+                                        <h4>Reports</h4>
+                                        <p class="stat-number" id="reportCount">Available</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="row" style="margin-top: 30px;">
+                        <div class="col-md-12">
+                            <h4>Quick Actions</h4>
+                            <div class="quick-actions">
+                                <div class="row">
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <a href="@Url.Action("Index", "UserMaster", new { area = "User" })" class="action-btn">
+                                            <div class="action-icon">
+                                                <i class="fa fa-user-plus"></i>
+                                            </div>
+                                            <span>User Master</span>
+                                        </a>
+                                    </div>
+                                    
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <a href="@Url.Action("Index", "RoleMaster", new { area = "User" })" class="action-btn">
+                                            <div class="action-icon">
+                                                <i class="fa fa-key"></i>
+                                            </div>
+                                            <span>Role Master</span>
+                                        </a>
+                                    </div>
+                                    
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <a href="@Url.Action("CenterwiseStatusReport", "Reports")" class="action-btn">
+                                            <div class="action-icon">
+                                                <i class="fa fa-file-text"></i>
+                                            </div>
+                                            <span>Reports</span>
+                                        </a>
+                                    </div>
+                                    
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <a href="#" class="action-btn" onclick="showUtilityMenu()">
+                                            <div class="action-icon">
+                                                <i class="fa fa-cogs"></i>
+                                            </div>
+                                            <span>Utilities</span>
+                                        </a>
+                                    </div>
+                                    
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <a href="#" class="action-btn" onclick="showTransactionMenu()">
+                                            <div class="action-icon">
+                                                <i class="fa fa-exchange"></i>
+                                            </div>
+                                            <span>Transactions</span>
+                                        </a>
+                                    </div>
+                                    
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <a href="#" class="action-btn" onclick="showBillingMenu()">
+                                            <div class="action-icon">
+                                                <i class="fa fa-money"></i>
+                                            </div>
+                                            <span>Billing</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity or Default Content -->
+                    <div class="row" style="margin-top: 30px;">
+                        <div class="col-md-12">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Recent Activity</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <p>Welcome to the IRMEPL - PNGNet Dashboard. Use the navigation menu above or quick actions to access different modules.</p>
+                                    <p><strong>Default Page:</strong> <a href="@Url.Action("CenterwiseStatusReport", "Reports")">Centerwise Status Report</a></p>
+                                    <div class="text-center" style="margin-top: 20px;">
+                                        <a href="@Url.Action("CenterwiseStatusReport", "Reports")" class="btn btn-primary btn-lg">
+                                            <i class="fa fa-arrow-right"></i> Go to Centerwise Status Report
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        margin: 20px 0;
+    }
+    
+    .welcome-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .welcome-section h2 {
+        margin-bottom: 10px;
+    }
+    
+    .stat-card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+    }
+    
+    .stat-card.bg-primary {
+        border-left-color: #007bff;
+    }
+    
+    .stat-card.bg-success {
+        border-left-color: #28a745;
+    }
+    
+    .stat-card.bg-warning {
+        border-left-color: #ffc107;
+    }
+    
+    .stat-card.bg-info {
+        border-left-color: #17a2b8;
+    }
+    
+    .stat-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .stat-icon {
+        font-size: 2.5em;
+        margin-right: 15px;
+        opacity: 0.8;
+    }
+    
+    .stat-text h4 {
+        margin: 0;
+        font-size: 1.2em;
+        color: #666;
+    }
+    
+    .stat-number {
+        font-size: 1.8em;
+        font-weight: bold;
+        margin: 5px 0 0 0;
+        color: #333;
+    }
+    
+    .quick-actions {
+        margin-top: 20px;
+    }
+    
+    .action-btn {
+        display: block;
+        text-align: center;
+        padding: 20px 10px;
+        background: #fff;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #333;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        border-color: #007bff;
+        background: #f8f9fa;
+        color: #007bff;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .action-icon {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+    
+    .action-btn span {
+        display: block;
+        font-weight: 500;
+        font-size: 0.9em;
+    }
+    
+   
+</style>
+
+<script>
+    $(document).ready(function() {
+        // Load dashboard statistics (you can implement AJAX calls here)
+        loadDashboardStats();
+        
+        // Auto-redirect to default page if specified
+        @if (!string.IsNullOrEmpty(Model.DefaultPageUrl))
+        {
+            <text>
+            // Uncomment the line below if you want auto-redirect to default page
+            // setTimeout(function() { window.location.href = '@Url.Content(Model.DefaultPageUrl)'; }, 3000);
+            </text>
+        }
+    });
+    
+    function loadDashboardStats() {
+        // Simulate loading stats - replace with actual AJAX calls
+        setTimeout(function() {
+            $('#userCount').text('25');
+            $('#activeCount').text('20');
+            $('#pendingCount').text('3');
+            $('#reportCount').text('15');
+        }, 1000);
+    }
+    
+    function showUtilityMenu() {
+        fireMessage('Utility menu items will be loaded based on user permissions.', 'Info');
+    }
+    
+    function showTransactionMenu() {
+        fireMessage('Transaction menu items will be loaded based on user permissions.', 'Info');
+    }
+    
+    function showBillingMenu() {
+        fireMessage('Billing menu items will be loaded based on user permissions.', 'Info');
+    }
+</script>

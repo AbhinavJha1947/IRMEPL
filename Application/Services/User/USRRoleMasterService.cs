@@ -1,7 +1,7 @@
 using Application.Interfaces.User;
 using Core.Entities.User;
 using Infrastructure.Data.Interfaces.User;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 
@@ -50,8 +50,21 @@ namespace Application.Services.User
                 rowsAffected = _USRRoleMasterDao.DeleteUSRRoleMaster(USRRoleMaster, ref cn, ref trn);
                 return rowsAffected;
             }
+
+        USRRoleMasterMsg IUSRRoleMasterService.InsertUSRRoleMaster(USRRoleMaster USRRoleMaster, ref SqlConnection cn, ref SqlTransaction trn)
+        {
+            throw new NotImplementedException();
+        }
+
+        int IUSRRoleMasterService.DeleteUSRRoleMaster(USRRoleMaster USRRoleMaster, ref SqlConnection cn, ref SqlTransaction trn)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
+
+
+
 
 
 

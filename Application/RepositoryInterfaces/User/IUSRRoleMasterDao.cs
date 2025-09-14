@@ -1,5 +1,5 @@
 ﻿using Core.Entities.User;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,4 +18,5 @@ namespace Infrastructure.Data.Interfaces.User
         public USRRoleMasterMsg InsertUSRRoleMaster(USRRoleMaster USRRoleMaster, ref SqlConnection objCon, ref SqlTransaction trn);
         public USRRoleMasterMsg UpdateUSRRoleMaster(USRRoleMaster USRRoleMaster, ref SqlConnection objCon, ref SqlTransaction trn);
         public int DeleteUSRRoleMaster(USRRoleMaster USRRoleMaster, ref SqlConnection objCon, ref SqlTransaction trn);
+    }
 }

@@ -1,55 +1,401 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class='no-js' lang='en'>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - IRMEPL</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/WebApp.styles.css" asp-append-version="true" />
+    <meta http-equiv="Page-Exit" content="progid:DXImageTransform.Microsoft.Fade(duration=.5)" />
+    <meta http-equiv="Page-Enter" content="progid:DXImageTransform.Microsoft.Fade(duration=.5)" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>@ViewData["Title"] - IRMEPL - PNGNet</title>
+    <meta content='initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width' name='viewport' />
+    <meta content='yes' name='apple-mobile-web-app-capable'>
+    <meta content='translucent-black' name='apple-mobile-web-app-status-bar-style'>
+
+    <!-- Favicon -->
+    <link href='~/App_Themes/WinXP_Blue/Images/favicon.png' rel='shortcut icon'>
+    <link href='~/App_Themes/WinXP_Blue/Images/favicon.ico' rel='icon' type='image/ico'>
+
+    <!-- Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+
+    <!-- CSS Files -->
+    <link href="~/App_Themes/WinXP_Blue/css/Tooltip.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="~/App_Themes/WinXP_Blue/css/style.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="~/App_Themes/WinXP_Blue/css/bootstrap.min.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="~/App_Themes/WinXP_Blue/css/radio-checkbox.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="~/App_Themes/WinXP_Blue/css/font-awesome.min.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="~/App_Themes/WinXP_Blue/css/streamline-small.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="~/App_Themes/WinXP_Blue/css/streamline-large.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="~/App_Themes/WinXP_Blue/css/hover-dropdown-menu.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/App_Themes/WinXP_Blue/css/bootstrap-select.css">
+
+    <!-- JavaScript Files -->
+    <script src="~/scripts/js/modernizr.js" type="text/javascript"></script>
+    <script type="text/javascript" src="~/scripts/Date.js"></script>
+    <script type="text/javascript" src="~/scripts/Validations.js"></script>
+    <script type="text/javascript" src="~/Scripts/DownMessage.js"></script>
+    <script type="text/javascript" src="~/Scripts/General.js"></script>
+
+    <style id="print" media="print" type="text/css">
+        #leftSide, #footerSide {
+            display: none;
+        }
+    </style>
+
+    <style type="text/css">
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loader {
+            margin-bottom: 20px;
+        }
+
+        .txt {
+            color: white;
+            font-size: 16px;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+<body class="MasterPageBody" ondragstart="return true;" onselectstart="return true;" onkeydown="return StopF5andBackSpace();">
+    <div id="wrapper">
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <span class="loader">
+                <img src="~/App_Themes/WinXP_Blue/Images/camera-loader.gif" alt="" />
+            </span>
+            <span class="txt">Processing, please wait...</span>
+        </div>
+
+        <!-- Splash Screen -->
+        <div id="splashScreen" class="MasterPageMainDiv"></div>
+
+        <!-- Top Header -->
+        <div class="top-header">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">IRMEPL</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Transaction" asp-action="Index">Transactions</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="logo-div">
+                            <div class="logo-box">
+                                <span class="logo-txt">
+                                    <a href="#">
+                                        <img src="~/App_Themes/WinXP_Blue/Images/irempl.png" alt="IRMEPL" />
+                                    </a>
+                                </span>
+                                <span class="sub-logo-txt">
+                                    <img src="~/App_Themes/WinXP_Blue/Images/PNGNet-Logo.gif" alt="PNGNet" />
+                                </span>
+                            </div>
+                        </div>
+                        <div class="top-right clearfix">
+                            <div class="top-txt-1">
+                                <span style="color:red;">Locking Date UpTo :</span>
+                                <span class="text-danger" id="lockingDate">@ViewBag.LockingDate</span>
+                                <span style="color:red;">Today :</span>
+                                <span id="currentDate">@ViewBag.CurrentDate</span>
+                                @if (Context.Session.GetString("USER_Type") == "1")
+                                {
+                                    <a class="" href="@Url.Action("Index", "SwitchCenter")">Switch Center</a>
+                                   // &nbsp; &nbsp;| &nbsp; &nbsp;
+                                }
+                                <span id="pageName">@ViewBag.PageName</span>
+                            </div>
+                            <div class="top-txt-2" id="divUserdetail">
+                                <span id="centerName">@Context.Session.GetString("CENMST_Name")</span>
+                                <span id="designation">@Context.Session.GetString("Designation")</span>
+                                <span id="userName">@Context.Session.GetString("USER_Name")</span>
+                                <a href="@Url.Action("Logout", "Login")">Logout</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="nav-div" id="dvtopmenubar">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="navbar" role="navigation">
+                            <div class="navbar-header">
+                                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                                    <span class="sr-only">Toggle navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                            </div>
+                            <div class="navbar-collapse collapse">
+                                @await Html.PartialAsync("_MenuPartial", ViewBag.MenuItems as List<WebApp.ViewModels.MenuItemViewModel>)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Display Area -->
+        <div class="error-div clearfix">
+            <table cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td id="tdMessage">
+                        <img id="ImgSuccessfull" style="display: none;" src="~/App_Themes/WinXP_Blue/Images/Inf-Blue.gif" />
+                        <img id="ImgError" style="display: none;" src="~/App_Themes/WinXP_Blue/Images/Err-RedO.gif" />
+
+                        <!-- Success Alert -->
+                        @if (TempData["Message_Success"] != null)
+                        {
+                            <div id="alertSuccess" class="alert alert-success" role="alert">
+                                <strong>@TempData["Message_Success"]</strong>
+                                <i class="fa fa-remove"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="alertSuccess" style="display: none;" class="alert alert-success" role="alert">
+                                <strong><span id="Message_Success"></span></strong>
+                                <i class="fa fa-remove"></i>
+                            </div>
+                        }
+
+                        <!-- Info Alert -->
+                        @if (TempData["Message_Info"] != null)
+                        {
+                            <div id="alertInfo" class="alert alert-info" role="alert">
+                                <strong>@TempData["Message_Info"]</strong>
+                                <i class="fa fa-remove"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="alertInfo" style="display: none;" class="alert alert-info" role="alert">
+                                <strong><span id="Message_Info"></span></strong>
+                                <i class="fa fa-remove"></i>
+                            </div>
+                        }
+
+                        <!-- Warning Alert -->
+                        @if (TempData["Message_Warning"] != null)
+                        {
+                            <div id="alertWarning" class="alert alert-warning" role="alert">
+                                <strong>@TempData["Message_Warning"]</strong>
+                                <i class="fa fa-remove"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="alertWarning" style="display: none;" class="alert alert-warning" role="alert">
+                                <strong><span id="Message_Warning"></span></strong>
+                                <i class="fa fa-remove"></i>
+                            </div>
+                        }
+
+                        <!-- Error/Danger Alert -->
+                        @if (TempData["Message_Danger"] != null || TempData["Error"] != null)
+                        {
+                            <div id="alertDanger" class="alert alert-danger" role="alert">
+                                <strong>@(TempData["Message_Danger"] ?? TempData["Error"])</strong>
+                                <i class="fa fa-remove"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="alertDanger" style="display: none;" class="alert alert-danger" role="alert">
+                                <strong><span id="Message_Danger"></span></strong>
+                                <i class="fa fa-remove"></i>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="container-area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+            <br /><br /><br />
+
+            <!-- Footer -->
+            <div class="footer-div">
+                <p class="log-reg-footer-txt">
+                    Copyright &copy
+                    <script>document.write(new Date().getFullYear());</script>
+                    IRMEPL. PNGNet | Powered by <a href="https://www.vbsoftindia.com" target="_blank">VBSoft (India) Limited.</a> All Rights Reserved.
+                </p>
+            </div>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - IRMEPL - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- JavaScript Libraries -->
+    <script src="~/scripts/js/jquery.min.js" type="text/javascript"></script>
+    <script src="~/scripts/js/bootstrap.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="~/scripts/js/hover-dropdown-menu.js"></script>
+    <script type="text/javascript" src="~/scripts/js/jquery.hover-dropdown-menu-addon.js"></script>
+    <script type="text/javascript" src="~/scripts/js/home-roundbox-hover.js"></script>
+    <script src="~/scripts/js/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/scripts/js/custom.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script type="text/javascript">
+        // Disable right-click context menu
+        document.oncontextmenu = new Function("return false");
+
+        // Set window status
+        window.status = 'Copyright © 2010 VBSOFT (India) Limited. All Rights Reserved.';
+
+        // Message handling variables
+        var x = 1;
+        var counter;
+
+        // Hide loading overlay on page load
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Show loading overlay
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        // Fire message function (equivalent to Web Forms version)
+        function fireMessage(text, Flag) {
+            if (Flag == undefined) {
+                Flag = 'Danger';
+            }
+
+            text = text.toString().replace(/\r\n/g, "<br>");
+            text = text.toString().replace(/\n/g, "");
+            text = text.toString().replace(/'/g, "");
+
+            // Hide all alerts first
+            document.getElementById("alertSuccess").style.display = "none";
+            document.getElementById("alertInfo").style.display = "none";
+            document.getElementById("alertWarning").style.display = "none";
+            document.getElementById("alertDanger").style.display = "none";
+
+            var minfo;
+            if (Flag == "Success" || Flag == "Message") {
+                minfo = document.getElementById("Message_Success");
+                document.getElementById("alertSuccess").style.display = "inline";
+            } else if (Flag == "Info") {
+                minfo = document.getElementById("Message_Info");
+                document.getElementById("alertInfo").style.display = "inline";
+            } else if (Flag == "Warning") {
+                minfo = document.getElementById("Message_Warning");
+                document.getElementById("alertWarning").style.display = "inline";
+            } else {
+                minfo = document.getElementById("Message_Danger");
+                document.getElementById("alertDanger").style.display = "inline";
+            }
+
+            if (minfo) {
+                minfo.innerText = text;
+                minfo.innerHTML = text;
+                minfo.textContent = text;
+            }
+
+            // Auto-hide after 15 seconds
+            counter = window.setInterval(function () { countDown(Flag); }, 500);
+        }
+
+        function countDown(Flag) {
+            var minfo;
+            if (Flag == "Success" || Flag == "Message") {
+                minfo = document.getElementById("alertSuccess");
+            } else if (Flag == "Info") {
+                minfo = document.getElementById("alertInfo");
+            } else if (Flag == "Warning") {
+                minfo = document.getElementById("alertWarning");
+            } else {
+                minfo = document.getElementById("alertDanger");
+            }
+
+            x = x + 1;
+            if (x == 30) { // 15 seconds (30 * 500ms)
+                clearInterval(counter);
+                if (minfo) {
+                    minfo.style.display = "none";
+                }
+                x = 1;
+            }
+        }
+
+        // Close message handlers
+        var closeButtons = document.getElementsByClassName("fa-remove");
+        var closeFunction = function () {
+            document.getElementById("alertSuccess").style.display = "none";
+            document.getElementById("alertInfo").style.display = "none";
+            document.getElementById("alertWarning").style.display = "none";
+            document.getElementById("alertDanger").style.display = "none";
+        };
+
+        for (var i = 0; i < closeButtons.length; i++) {
+            closeButtons[i].addEventListener('click', closeFunction, false);
+        }
+
+        // Page load handling
+        function pageLoad() {
+            var browserName = navigator.appName;
+            if (browserName == "Netscape") {
+                // Firefox-specific CSS class handling
+                var className = "tdMultiViewTable";
+                var hasClassName = new RegExp("(?:^|\\s)" + className + "(?:$|\\s)");
+                var allElements = document.getElementsByTagName("*");
+                var element;
+
+                for (var i = 0; (element = allElements[i]) != null; i++) {
+                    var elementClass = element.className;
+                    if (elementClass && elementClass.indexOf(className) != -1 && hasClassName.test(elementClass)) {
+                        element.className = "tdMultiViewTableFF";
+                    }
+                }
+
+                className = "tabtd";
+                hasClassName = new RegExp("(?:^|\\s)" + className + "(?:$|\\s)");
+                allElements = document.getElementsByTagName("*");
+
+                for (var i = 0; (element = allElements[i]) != null; i++) {
+                    var elementClass = element.className;
+                    if (elementClass && elementClass.indexOf(className) != -1 && hasClassName.test(elementClass)) {
+                        element.className = "tabtdFF";
+                    }
+                }
+            }
+        }
+
+        // Initialize on document ready
+        $(document).ready(function () {
+            hideLoading();
+            pageLoad();
+        });
+
+        // Show loading on form submissions
+        $('form').on('submit', function () {
+            showLoading();
+        });
+
+        // Hide loading after AJAX requests complete
+        $(document).ajaxComplete(function () {
+            hideLoading();
+        });
+    </script>
 </body>
 </html>

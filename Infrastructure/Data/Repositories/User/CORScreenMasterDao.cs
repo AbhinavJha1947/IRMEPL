@@ -1,5 +1,6 @@
 ﻿using Core.Entities.User;
 using Infrastructure.Data.Interfaces.User;
+using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +12,12 @@ namespace Infrastructure.Data.Repositories.User
 {
     public class CORScreenMasterDao : ICORScreenMasterDao
     {
+        private readonly DbManager _dbManager;
+
+        public CORScreenMasterDao(DbManager dbManager)
+        {
+            _dbManager = dbManager;
+        }
 
         public IList<CORScreenMasterList> GetCORScreenMasters()
         {
@@ -33,7 +40,7 @@ namespace Infrastructure.Data.Repositories.User
             sql.Append(USERID + ",");
             sql.Append("'" + criteria + "'");
 
-            DataSet ds = Infrastructure.Data.DbManager.GetDataSet(sql.ToString());
+            DataSet ds = _dbManager.GetDataSet(sql.ToString());
             DataTable dtList = ds.Tables[0];
 
             IList<CORScreenMasterList> list = new List<CORScreenMasterList>();

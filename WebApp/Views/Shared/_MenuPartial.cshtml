@@ -1,0 +1,129 @@
+﻿@model List<WebApp.ViewModels.MenuItemViewModel>
+
+@if (Model != null && Model.Any())
+{
+    @foreach (var menuItem in Model)
+    {
+        @if (menuItem.SubItems != null && menuItem.SubItems.Any())
+        {
+            <ul class="nav navbar-nav">
+                <li id="li@(menuItem.Text.Replace(" ", ""))" class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        @menuItem.Text
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        @foreach (var subItem in menuItem.SubItems)
+                        {
+                            @if (subItem.HasAccess)
+                            {
+                                <li>
+                                    <a href="@Url.Content(subItem.Url)">@subItem.Text</a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </li>
+            </ul>
+        }
+    }
+}
+else
+{
+    <ul class="nav navbar-nav">
+        <li id="liMaster" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Master
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="@Url.Action("Index", "UserMaster", new { area = "User" })">User Master</a></li>
+                <li><a href="@Url.Action("Index", "RoleMaster", new { area = "User" })">Role Master</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav">
+        <li id="liTransaction" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Transaction
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#">Sample Transaction</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav">
+        <li id="liPaymentProcess" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Payment Process
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#">Sample Payment</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav">
+        <li id="liUtility" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Utility
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#">Sample Utility</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav">
+        <li id="liBilling" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Billing
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#">Sample Billing</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav">
+        <li id="liReports" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Reports
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="@Url.Action("CenterwiseStatusReport", "Reports")">Centerwise Status Report</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav">
+        <li id="liCSVUpload" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                CSV Upload
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#">Sample CSV Upload</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav">
+        <li id="liCSM" class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                CSM
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="#">Sample CSM</a></li>
+            </ul>
+        </li>
+    </ul>
+}
